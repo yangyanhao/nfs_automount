@@ -320,6 +320,12 @@ function nfs_mount {
     check_remoteshare ${_remotesystem} ${_remoteshare}
     if ${_RET} ; then
 
+      log "[INFO] check ${_localmountpoint}"
+      if [[ -h ${_localmountpoint} ]]; then
+        log "[INFO] mv ${_localmountpoint}"
+        rm ${_localmountpoint}
+        mkdir -p ${_localmountpoint}
+      fi
       # Make sure the local mountpoint exists and is free
       valid_for_mount ${_localmountpoint}
       if ${_RET} ; then
@@ -407,6 +413,10 @@ while : ; do
       if ${_RET} ; then
         log "[INFO] local file (${LOCALFILE}) exists. Unmounting ${LOCALMOUNTPOINT} ..."
         nfs_umount "${LOCALMOUNTPOINT}"
+      fi
+      if [ ! -h ${LOCALMOUNTPOINT} ]; then
+        rm -fr ${LOCALMOUNTPOINT}
+        ln -sf ${LOCALFILE} ${LOCALMOUNTPOINT}
       fi
       continue
     fi
